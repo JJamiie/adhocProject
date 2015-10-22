@@ -61,11 +61,12 @@ public class JavaSoundRecorder implements Runnable{
  
     /**
      * Entry to run the program
+     * it should be only one entry to the program and nots here, since I changed the structure of the program
      */
-    public static void main(String[] args) {
-        
-    	 final JavaSoundRecorder recorder = new JavaSoundRecorder();
-        // start recording
-        recorder.run();
-    }
+//    public static void main(String[] args) {
+//        
+//    	 final JavaSoundRecorder recorder = new JavaSoundRecorder();
+//        // start recording
+//        recorder.run();
+//    }
 }
