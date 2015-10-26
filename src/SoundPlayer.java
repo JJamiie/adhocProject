@@ -1,5 +1,7 @@
 import java.applet.AudioClip;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.util.LinkedList;
 
 import javax.sound.sampled.AudioFormat;
@@ -14,7 +16,7 @@ public class SoundPlayer extends Thread {
 	
 	public synchronized void run() {
 		while (true) {
-//			check whether there is anything to send ? if not go sleep
+//			check whether there is anything to play ? if not go sleep
 //			it will be woken up by add();
 			if (playingQueue.isEmpty()) {
 				try {
@@ -26,15 +28,23 @@ public class SoundPlayer extends Thread {
 			}
 			
 			AudioChunk goingToPlay = playingQueue.removeFirst();
-//			@TODO
-//			convert goingToPlay to audioInputStream
-//			this.playSound(audioInputStream);
+			this.playSound(goingToPlay.audioBytes);
 		}
 	}
 	
 	public synchronized void addSoundToQueue(AudioChunk receivingChunk) {
 		this.playingQueue.add(receivingChunk);
 		notifyAll();
+	}
+	
+	public void playSound(byte[] audioBytes) {
+		InputStream inputStream = new ByteArrayInputStream(audioBytes);
+		AudioFormat audioFormat = SoundRecorder.getAudioFormat();
+//		length is the number of frames in the audioBytes
+		int length = SoundRecorder.BUFFER_SIZE / audioFormat.getFrameSize();
+		AudioInputStream audioInputStream = new AudioInputStream(inputStream, audioFormat, length);
+		
+		this.playSound(audioInputStream);
 	}
 	
 	public void playSound(AudioInputStream audioInputStream) {
