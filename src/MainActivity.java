@@ -42,7 +42,33 @@ public class MainActivity extends JFrame implements KeyListener {
 		this.setResizable(false);
 		this.setVisible(true);
 	}
+	public void broadcast() throws UnknownHostException, InterruptedException{
 
+	    final String INET_ADDR = "192.168.1.254";
+	    final int PORT = 8000;
+
+	    
+	        // Get the address that we are going to connect to.
+	        InetAddress addr = InetAddress.getByName(INET_ADDR);
+
+	        // Open a new DatagramSocket, which will be used to send the data.
+	        try (DatagramSocket serverSocket = new DatagramSocket()) {
+	            for (int i = 0; i < 100; i++) {
+	                String msg = "Sent message no " + i;
+
+	                // Create a packet that will contain the datas
+	                // (in the form of bytes) and send it.
+	                DatagramPacket msgPacket = new DatagramPacket(msg.getBytes(),
+	                        msg.getBytes().length, addr, PORT);
+	                serverSocket.send(msgPacket);
+
+	                System.out.println("Server sent packet with msg: " + msg);
+	                Thread.sleep(500);
+	            }
+	        } catch (IOException ex) {
+	            ex.printStackTrace();
+	        }
+	    }
 	public void frameJoinChannel() {
 		ImagePanel join = new ImagePanel("picture/login.png");
 		join.setSize(400, 400);
@@ -130,7 +156,7 @@ public class MainActivity extends JFrame implements KeyListener {
 			System.out.println("Mode:= " + returnCode);
 
 			String[] command4 = { "/bin/bash", "-c",
-					"echo " + key + "| sudo -S iwconfig wlan0 channel 4" };
+					"echo " + key + "| sudo -S iwconfig wlan0 channel 1" };
 			process = Runtime.getRuntime().exec(command4);
 			returnCode = process.waitFor();
 			System.out.println(command4);
@@ -162,7 +188,7 @@ public class MainActivity extends JFrame implements KeyListener {
 
 			int ip = (int) Math.floor((Math.random() * 255) + 1);
 			String[] command8 = { "/bin/bash", "-c",
-					"echo " + key + "| sudo -S ifconfig wlan0 192.168.1." + ip };
+					"echo " + key + "| sudo -S ifconfig wlan0 192.168.1." + ip +" 255.255.255.0	" };
 			process = Runtime.getRuntime().exec(command8);
 			returnCode = process.waitFor();
 			System.out.println(command8);
