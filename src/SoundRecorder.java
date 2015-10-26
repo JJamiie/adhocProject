@@ -8,12 +8,12 @@ import java.io.*;
 public class SoundRecorder implements Runnable {
     // the line from which audio data is captured
     TargetDataLine line;
-    private final int BUFFER_SIZE = 1000;
+    public static final int BUFFER_SIZE = 1000;
  
     /**
      * Defines an audio format
      */
-    AudioFormat getAudioFormat() {
+    public static AudioFormat getAudioFormat() {
         float sampleRate = 16000;
         int sampleSizeInBits = 8;
         int channels = 1;
@@ -23,6 +23,7 @@ public class SoundRecorder implements Runnable {
                                              channels, signed, bigEndian);
         return format;
     }
+    
     public void run() {
     	int sequenceNumber = 1;
     	
@@ -31,7 +32,7 @@ public class SoundRecorder implements Runnable {
     	sendingQueue.start();
     	
         try {
-            AudioFormat format = getAudioFormat();
+            AudioFormat format = SoundRecorder.getAudioFormat();
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
  
             // checks if system supports the data line
@@ -55,7 +56,10 @@ public class SoundRecorder implements Runnable {
             }
         } catch (LineUnavailableException ex) {
             ex.printStackTrace();
-        }
+        } catch (SenderNameLengthExceededException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
  
     /**
