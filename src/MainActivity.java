@@ -9,6 +9,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
@@ -40,7 +45,33 @@ public class MainActivity extends JFrame implements KeyListener {
 		this.setResizable(false);
 		this.setVisible(true);
 	}
+	public void broadcast() throws UnknownHostException, InterruptedException{
 
+	    final String INET_ADDR = "192.168.1.254";
+	    final int PORT = 8000;
+
+	    
+	        // Get the address that we are going to connect to.
+	        InetAddress addr = InetAddress.getByName(INET_ADDR);
+
+	        // Open a new DatagramSocket, which will be used to send the data.
+	        try (DatagramSocket serverSocket = new DatagramSocket()) {
+	            for (int i = 0; i < 100; i++) {
+	                String msg = "Sent message no " + i;
+
+	                // Create a packet that will contain the datas
+	                // (in the form of bytes) and send it.
+	                DatagramPacket msgPacket = new DatagramPacket(msg.getBytes(),
+	                        msg.getBytes().length, addr, PORT);
+	                serverSocket.send(msgPacket);
+
+	                System.out.println("Server sent packet with msg: " + msg);
+	                Thread.sleep(500);
+	            }
+	        } catch (IOException ex) {
+	            ex.printStackTrace();
+	        }
+	    }
 	public void frameJoinChannel() {
 		join = new ImagePanel("picture/login.png");
 		join.setSize(400, 400);
@@ -151,8 +182,7 @@ public class MainActivity extends JFrame implements KeyListener {
 			System.out.println(command3);
 			System.out.println("Mode:= " + returnCode);
 
-			String[] command4 = { "/bin/bash", "-c",	
-					"echo " + key + "| sudo -S iwconfig wlan0 channel 1" };
+			String[] command4 = { "/bin/bash", "-c","echo " + key + "| sudo -S iwconfig wlan0 channel 1" };
 			process = Runtime.getRuntime().exec(command4);
 			returnCode = process.waitFor();
 			System.out.println(command4);
