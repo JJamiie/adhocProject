@@ -45,7 +45,7 @@ public class MainActivity extends JFrame implements KeyListener {
 		this.setResizable(false);
 		this.setVisible(true);
 	}
-	public void broadcast() throws UnknownHostException, InterruptedException{
+	public void broadcast(AudioChunk audioChunk) throws UnknownHostException, InterruptedException{
 
 	    final String INET_ADDR = "192.168.1.254";
 	    final int PORT = 8000;
@@ -61,9 +61,9 @@ public class MainActivity extends JFrame implements KeyListener {
 
 	                // Create a packet that will contain the datas
 	                // (in the form of bytes) and send it.
-	                DatagramPacket msgPacket = new DatagramPacket(msg.getBytes(),
-	                        msg.getBytes().length, addr, PORT);
-	                serverSocket.send(msgPacket);
+	                //DatagramPacket msgPacket = new DatagramPacket(audioChunk.getBytes(),
+	                  //      msg.getBytes().length, addr, PORT);
+	                serverSocket.send(audioChunk);
 
 	                System.out.println("Server sent packet with msg: " + msg);
 	                Thread.sleep(500);
@@ -72,6 +72,7 @@ public class MainActivity extends JFrame implements KeyListener {
 	            ex.printStackTrace();
 	        }
 	    }
+	
 	public void frameJoinChannel() {
 		join = new ImagePanel("picture/login.png");
 		join.setSize(400, 400);
