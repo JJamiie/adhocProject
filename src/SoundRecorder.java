@@ -5,9 +5,10 @@ import java.io.*;
  * A sample program is to demonstrate how to record sound in Java
  * author: www.codejava.net
  */
-public class JavaSoundRecorder implements Runnable{
+public class SoundRecorder implements Runnable {
     // the line from which audio data is captured
     TargetDataLine line;
+    private final int BUFFER_SIZE = 1000;
  
     /**
      * Defines an audio format
@@ -15,7 +16,7 @@ public class JavaSoundRecorder implements Runnable{
     AudioFormat getAudioFormat() {
         float sampleRate = 16000;
         int sampleSizeInBits = 8;
-        int channels = 2;
+        int channels = 1;
         boolean signed = true;
         boolean bigEndian = true;
         AudioFormat format = new AudioFormat(sampleRate, sampleSizeInBits,
@@ -23,6 +24,12 @@ public class JavaSoundRecorder implements Runnable{
         return format;
     }
     public void run() {
+    	int sequenceNumber = 1;
+    	
+    	
+    	SendingQueue sendingQueue = new SendingQueue();
+    	sendingQueue.start();
+    	
         try {
             AudioFormat format = getAudioFormat();
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
@@ -32,18 +39,19 @@ public class JavaSoundRecorder implements Runnable{
                 System.out.println("Line not supported");
                 System.exit(0);
             }
+            
             line = (TargetDataLine) AudioSystem.getLine(info);
             line.open(format);
             System.out.println("Start capturing...");
             while(true){
-            line.start();   // start capturing
-            //buffering 
-            byte[] b = new byte[100];
-            line.read(b, 0, 100);
-            for(int i=0;i<100;i++){
-            	System.out.print(b[i]);
-            }
-         
+	            line.start();   // start capturing
+	            //buffering 
+	            byte[] b = new byte[BUFFER_SIZE];
+	            line.read(b, 0, BUFFER_SIZE);
+	            
+//	            send to others
+	            AudioChunk sendingChunk = new AudioChunk("ta", sequenceNumber, b);
+	            sendingQueue.add(sendingChunk);
             }
         } catch (LineUnavailableException ex) {
             ex.printStackTrace();
