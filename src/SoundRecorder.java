@@ -56,7 +56,7 @@ public class SoundRecorder implements Runnable {
             }
         } catch (LineUnavailableException ex) {
             ex.printStackTrace();
-        } catch (SenderNameLengthExceededException e) {
+        } catch (SenderNameIncorrectLengthException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

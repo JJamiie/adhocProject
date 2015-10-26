@@ -1,20 +1,23 @@
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 
 public class AudioChunk {
 	public static final int SENDER_NAME_LENGTH = 50;
 	public static final int TOTAL_LENGTH = SENDER_NAME_LENGTH + 4 + SoundRecorder.BUFFER_SIZE;
 	
-	public char[] senderName;
+	public String senderName;
 	public int sequenceNumber;
 	public byte[] audioBytes;
 
-	public AudioChunk(String senderName, int sequenceNumber, byte[] audioBytes) throws SenderNameLengthExceededException {
+	public AudioChunk(String senderName, int sequenceNumber, byte[] audioBytes) throws SenderNameIncorrectLengthException {
 		if (senderName.length() > SENDER_NAME_LENGTH) {
-			throw new SenderNameLengthExceededException();
+			throw new SenderNameIncorrectLengthException();
 		}
 		
-		this.senderName = senderName.toCharArray();
+		this.senderName = senderName;
+		
 		this.sequenceNumber = sequenceNumber;
+		
 		this.audioBytes = audioBytes;
 	}
 	
@@ -24,8 +27,21 @@ public class AudioChunk {
 		}
 		
 //		assign the senderName
-		this.senderName = new char[SENDER_NAME_LENGTH];
-		System.arraycopy(audioChunkBytes, 0, this.senderName, 0, SENDER_NAME_LENGTH);
+		byte[] senderNameBytes = new byte[SENDER_NAME_LENGTH];
+		System.arraycopy(audioChunkBytes, 0, senderNameBytes, 0, SENDER_NAME_LENGTH);
+		
+//		find the actual sender name, because this.senderName should contain only the name string with actual length 
+//		this cannot be determined trivially
+//		we have to detect the '\0' char (0 in utf-8 byte) to see the end of string
+		int senderNameLength = 0;
+		for (int i = 0; i < senderNameBytes.length; ++i) {
+			if (senderNameBytes[i] != 0) {
+				senderNameLength += 1;
+			}
+		}
+		
+		String senderNameString = new String(senderNameBytes, 0, senderNameLength, StandardCharsets.UTF_8);
+		this.senderName = senderNameString;
 
 //		assign the sequenceNumber
 		byte[] sequenceNumberBytes = new byte[4];
@@ -59,14 +75,22 @@ public class AudioChunk {
 		return result;
 	}
 	
+	/**
+	 * the returning bytes will be : 50 bytes for senderName | 4 bytes for sequenceNumber | 1000 bytes for audioBytes
+	 */
 	public byte[] getBytes() {
-//		the returning bytes will be : 50 bytes for senderName | 4 bytes for sequenceNumber | 1000 bytes for audioBytes
+//		resizing the sender name to be SENDER_NAME_LENGTH
+		byte[] senderNameBytes = new byte[SENDER_NAME_LENGTH];
+//		using utf-8 as encoding for converting chars to bytes
+		byte[] senderNameBytesShorter = senderName.getBytes(StandardCharsets.UTF_8);
+		System.arraycopy(senderNameBytesShorter, 0, senderNameBytes, 0, senderNameBytesShorter.length);
+		
 		byte[] sequenceNumberBytes = AudioChunk.intToBytes(sequenceNumber);
 		byte[] audioChunkBytes = new byte[TOTAL_LENGTH];
 		
-		System.arraycopy(senderName, 0, audioChunkBytes, 0, senderName.length);
-		System.arraycopy(sequenceNumberBytes, 0, audioChunkBytes, senderName.length, 4);
-		System.arraycopy(audioBytes, 0, audioChunkBytes, senderName.length + 4, SoundRecorder.BUFFER_SIZE);
+		System.arraycopy(senderNameBytes, 0, audioChunkBytes, 0, SENDER_NAME_LENGTH);
+		System.arraycopy(sequenceNumberBytes, 0, audioChunkBytes, SENDER_NAME_LENGTH, 4);
+		System.arraycopy(audioBytes, 0, audioChunkBytes, SENDER_NAME_LENGTH + 4, SoundRecorder.BUFFER_SIZE);
 		
 		return audioChunkBytes;
 	}
