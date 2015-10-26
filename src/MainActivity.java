@@ -9,10 +9,14 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -45,34 +49,27 @@ public class MainActivity extends JFrame implements KeyListener {
 		this.setResizable(false);
 		this.setVisible(true);
 	}
-	public void broadcast(AudioChunk audioChunk) throws UnknownHostException, InterruptedException{
-
-	    final String INET_ADDR = "192.168.1.254";
-	    final int PORT = 8000;
-
-	    
-	        // Get the address that we are going to connect to.
-	        InetAddress addr = InetAddress.getByName(INET_ADDR);
-
-	        // Open a new DatagramSocket, which will be used to send the data.
-	        try (DatagramSocket serverSocket = new DatagramSocket()) {
-	            for (int i = 0; i < 100; i++) {
-	                String msg = "Sent message no " + i;
-
-	                // Create a packet that will contain the datas
-	                // (in the form of bytes) and send it.
-	                //DatagramPacket msgPacket = new DatagramPacket(audioChunk.getBytes(),
-	                  //      msg.getBytes().length, addr, PORT);
-	                serverSocket.send(audioChunk);
-
-	                System.out.println("Server sent packet with msg: " + msg);
-	                Thread.sleep(500);
-	            }
-	        } catch (IOException ex) {
-	            ex.printStackTrace();
-	        }
-	    }
 	
+
+	public void broadcast(AudioChunk audio) throws InterruptedException, IOException{
+		ServerSocketChannel ssChannel = ServerSocketChannel.open();
+        ssChannel.configureBlocking(true);
+        int port = 8000;
+        ssChannel.socket().bind(new InetSocketAddress(port));
+
+        //String obj ="testtext";
+        while (true) {
+            SocketChannel sChannel = ssChannel.accept();
+
+            ObjectOutputStream  oos = new 
+                      ObjectOutputStream(sChannel.socket().getOutputStream());
+            oos.writeObject(audio);
+            oos.close();
+
+            System.out.println("Connection ended");
+	    }
+        }
+
 	public void frameJoinChannel() {
 		join = new ImagePanel("picture/login.png");
 		join.setSize(400, 400);
