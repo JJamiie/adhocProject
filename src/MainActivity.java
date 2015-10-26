@@ -8,12 +8,14 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -46,25 +48,7 @@ public class MainActivity extends JFrame implements KeyListener {
 		this.setResizable(false);
 		this.setVisible(true);
 	}
-
-	public void broadcast(AudioChunk audio) throws InterruptedException, IOException{
-		ServerSocketChannel ssChannel = ServerSocketChannel.open();
-        ssChannel.configureBlocking(true);
-        int port = 8000;
-        ssChannel.socket().bind(new InetSocketAddress(port));
-
-        //String obj ="testtext";
-        while (true) {
-            SocketChannel sChannel = ssChannel.accept();
-
-            ObjectOutputStream  oos = new 
-                      ObjectOutputStream(sChannel.socket().getOutputStream());
-            oos.writeObject(audio);
-            oos.close();
-
-            System.out.println("Connection ended");
-	    }
-        }
+	    
 	public void frameJoinChannel() {
 		ImagePanel join = new ImagePanel("picture/login.png");
 		join.setSize(400, 400);
