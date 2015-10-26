@@ -20,7 +20,9 @@ public class MainActivity extends JFrame implements KeyListener {
 	private JTextField ssidField;
 	private JPasswordField keyField;
 	private JTextField usernameField;
-
+	ImagePanel join;
+	ImagePanel runframe;
+	MainActivity th = this;
 	public static void main(String[] arg) {
 		new MainActivity();
 	}
@@ -40,7 +42,7 @@ public class MainActivity extends JFrame implements KeyListener {
 	}
 
 	public void frameJoinChannel() {
-		ImagePanel join = new ImagePanel("picture/login.png");
+		join = new ImagePanel("picture/login.png");
 		join.setSize(400, 400);
 		join.setLayout(null);
 
@@ -77,8 +79,8 @@ public class MainActivity extends JFrame implements KeyListener {
 							"Please fill in your password.", "Error",
 							JOptionPane.ERROR_MESSAGE);
 				} else {
-					configAdhoc();
-					//frameRun();
+					//configAdhoc();
+					frameRun();
 				}
 			}
 		});
@@ -88,32 +90,33 @@ public class MainActivity extends JFrame implements KeyListener {
 		join.add(keyField);
 		join.add(joinButton);
 		this.add(join);
-
+		this.revalidate();
+		this.repaint();
 	}
 	
 	public void frameRun(){
-	
-		System.out.println("run");
-		ImagePanel runframe = new ImagePanel("picture/runframe.png");
+		System.out.println("----Run-----");
+		runframe = new ImagePanel("picture/runframe.png");
 		runframe.setSize(400, 400);
 		runframe.setLayout(null);
 		PictureButton back = new PictureButton("picture/back.png","picture/backClick.png");
-		back.setBounds(50,50, 21, 20);
+		back.setBounds(370,10, 21, 20);
 		back.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				th.remove(runframe);
 				frameJoinChannel();
 			}
 		});
 		runframe.add(back);
+		this.remove(join);
 		this.add(runframe);
 		this.revalidate();
 		this.repaint();
-		
-		
 	}
 
+	
 	public void setStandartTextField(JTextField textField,String text){
 		textField.setBackground(new Color(58,65,73));
 		textField.setForeground(Color.white);
