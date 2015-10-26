@@ -26,6 +26,7 @@ public class MainActivity extends JFrame implements KeyListener {
 	}
 
 	public MainActivity() {
+		
 		this.setSize(400, 400);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height
@@ -58,7 +59,6 @@ public class MainActivity extends JFrame implements KeyListener {
 		setStandartTextField(keyField,"Password");
 		
 		PictureButton joinButton = new PictureButton("picture/joinButton.png","picture/joinButtonClick.png");
-		joinButton.setText("Join");
 		joinButton.setBounds(64, 316, 261, 35);
 		joinButton.addActionListener(new ActionListener() {
 
@@ -78,6 +78,7 @@ public class MainActivity extends JFrame implements KeyListener {
 							JOptionPane.ERROR_MESSAGE);
 				} else {
 					configAdhoc();
+					//frameRun();
 				}
 			}
 		});
@@ -88,6 +89,29 @@ public class MainActivity extends JFrame implements KeyListener {
 		join.add(joinButton);
 		this.add(join);
 
+	}
+	
+	public void frameRun(){
+	
+		System.out.println("run");
+		ImagePanel runframe = new ImagePanel("picture/runframe.png");
+		runframe.setSize(400, 400);
+		runframe.setLayout(null);
+		PictureButton back = new PictureButton("picture/back.png","picture/backClick.png");
+		back.setBounds(50,50, 21, 20);
+		back.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				frameJoinChannel();
+			}
+		});
+		runframe.add(back);
+		this.add(runframe);
+		this.revalidate();
+		this.repaint();
+		
+		
 	}
 
 	public void setStandartTextField(JTextField textField,String text){
@@ -124,8 +148,8 @@ public class MainActivity extends JFrame implements KeyListener {
 			System.out.println(command3);
 			System.out.println("Mode:= " + returnCode);
 
-			String[] command4 = { "/bin/bash", "-c",
-					"echo " + key + "| sudo -S iwconfig wlan0 channel 4" };
+			String[] command4 = { "/bin/bash", "-c",	
+					"echo " + key + "| sudo -S iwconfig wlan0 channel 1" };
 			process = Runtime.getRuntime().exec(command4);
 			returnCode = process.waitFor();
 			System.out.println(command4);
@@ -157,11 +181,11 @@ public class MainActivity extends JFrame implements KeyListener {
 
 			int ip = (int) Math.floor((Math.random() * 255) + 1);
 			String[] command8 = { "/bin/bash", "-c",
-					"echo " + key + "| sudo -S ifconfig wlan0 192.168.1." + ip };
+					"echo " + key + "| sudo -S ifconfig wlan0 192.168.1." + ip +" 255.255.255.0"};
 			process = Runtime.getRuntime().exec(command8);
 			returnCode = process.waitFor();
 			System.out.println(command8);
-			System.out.println("IP 192.168." + ip + ":= " + returnCode);
+			System.out.println("IP 192.168.1." + ip + ":= " + returnCode);
 
 		} catch (IOException e) {
 			e.printStackTrace();
