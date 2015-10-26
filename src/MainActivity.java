@@ -10,11 +10,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
@@ -22,7 +18,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-
 
 public class MainActivity extends JFrame implements KeyListener {
 	private String key;
@@ -32,16 +27,17 @@ public class MainActivity extends JFrame implements KeyListener {
 	ImagePanel join;
 	ImagePanel runframe;
 	MainActivity th = this;
+
 	public static void main(String[] arg) {
 		new MainActivity();
 	}
 
 	public MainActivity() {
-		
+
 		this.setSize(400, 400);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height
-				/ 2 - this.getSize().height / 2-50);
+				/ 2 - this.getSize().height / 2 - 50);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addKeyListener(this);
 		exitListener();
@@ -49,27 +45,26 @@ public class MainActivity extends JFrame implements KeyListener {
 		this.setResizable(false);
 		this.setVisible(true);
 	}
-	
 
-	public void broadcast(AudioChunk audio) throws InterruptedException, IOException{
+	public void broadcast(AudioChunk audio) throws InterruptedException,
+			IOException {
 		ServerSocketChannel ssChannel = ServerSocketChannel.open();
-        ssChannel.configureBlocking(true);
-        int port = 8000;
-        ssChannel.socket().bind(new InetSocketAddress(port));
+		ssChannel.configureBlocking(true);
+		int port = 8000;
+		ssChannel.socket().bind(new InetSocketAddress(port));
 
-        //String obj ="testtext";
-        while (true) {
-            SocketChannel sChannel = ssChannel.accept();
+		while (true) {
+			SocketChannel sChannel = ssChannel.accept();
 
-            ObjectOutputStream  oos = new 
-                      ObjectOutputStream(sChannel.socket().getOutputStream());
-            oos.writeObject(audio);
-            oos.close();
+			ObjectOutputStream oos = new ObjectOutputStream(sChannel.socket()
+					.getOutputStream());
+			oos.writeObject(audio);
+			oos.close();
+			System.out.println("Connection ended");
+		}
+	}
 
-            System.out.println("Connection ended");
-	    }
-        }
-
+	
 	public void frameJoinChannel() {
 		join = new ImagePanel("picture/login.png");
 		join.setSize(400, 400);
@@ -77,19 +72,18 @@ public class MainActivity extends JFrame implements KeyListener {
 
 		ssidField = new JTextField();
 		ssidField.setBounds(120, 170, 200, 30);
-		setStandartTextField(ssidField,"SSID");
-		
-		
+		setStandartTextField(ssidField, "SSID");
+
 		usernameField = new JTextField();
 		usernameField.setBounds(120, 215, 200, 30);
-		setStandartTextField(usernameField,"Username");
-		
-		
+		setStandartTextField(usernameField, "Username");
+
 		keyField = new JPasswordField();
 		keyField.setBounds(120, 260, 200, 30);
-		setStandartTextField(keyField,"Password");
-		
-		PictureButton joinButton = new PictureButton("picture/joinButton.png","picture/joinButtonClick.png");
+		setStandartTextField(keyField, "Password");
+
+		PictureButton joinButton = new PictureButton("picture/joinButton.png",
+				"picture/joinButtonClick.png");
 		joinButton.setBounds(64, 316, 261, 35);
 		joinButton.addActionListener(new ActionListener() {
 
@@ -103,12 +97,12 @@ public class MainActivity extends JFrame implements KeyListener {
 					JOptionPane.showMessageDialog(null,
 							"Please fill in your username.", "Error",
 							JOptionPane.ERROR_MESSAGE);
-				}else if(keyField.getText().isEmpty()){
+				} else if (keyField.getText().isEmpty()) {
 					JOptionPane.showMessageDialog(null,
 							"Please fill in your password.", "Error",
 							JOptionPane.ERROR_MESSAGE);
 				} else {
-					//configAdhoc();
+					// configAdhoc();
 					frameRun();
 				}
 			}
@@ -122,16 +116,17 @@ public class MainActivity extends JFrame implements KeyListener {
 		this.revalidate();
 		this.repaint();
 	}
-	
-	public void frameRun(){
+
+	public void frameRun() {
 		System.out.println("----Run-----");
 		runframe = new ImagePanel("picture/runframe.png");
 		runframe.setSize(400, 400);
 		runframe.setLayout(null);
-		PictureButton back = new PictureButton("picture/back.png","picture/backClick.png");
-		back.setBounds(370,10, 21, 20);
+		PictureButton back = new PictureButton("picture/back.png",
+				"picture/backClick.png");
+		back.setBounds(370, 10, 21, 20);
 		back.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				th.remove(runframe);
@@ -145,16 +140,15 @@ public class MainActivity extends JFrame implements KeyListener {
 		this.repaint();
 	}
 
-	
-	public void setStandartTextField(JTextField textField,String text){
-		textField.setBackground(new Color(58,65,73));
+	public void setStandartTextField(JTextField textField, String text) {
+		textField.setBackground(new Color(58, 65, 73));
 		textField.setForeground(Color.white);
 		textField.setBorder(null);
 		textField.setCaretColor(Color.white);
 		TextPrompt tp = new TextPrompt(text, textField);
-		tp.setForeground(new Color(106,116,127));
+		tp.setForeground(new Color(106, 116, 127));
 	}
-	
+
 	public void configAdhoc() {
 		Process process;
 		try {
@@ -180,7 +174,8 @@ public class MainActivity extends JFrame implements KeyListener {
 			System.out.println(command3);
 			System.out.println("Mode:= " + returnCode);
 
-			String[] command4 = { "/bin/bash", "-c","echo " + key + "| sudo -S iwconfig wlan0 channel 1" };
+			String[] command4 = { "/bin/bash", "-c",
+					"echo " + key + "| sudo -S iwconfig wlan0 channel 1" };
 			process = Runtime.getRuntime().exec(command4);
 			returnCode = process.waitFor();
 			System.out.println(command4);
@@ -211,8 +206,11 @@ public class MainActivity extends JFrame implements KeyListener {
 			System.out.println("Down:= " + returnCode);
 
 			int ip = (int) Math.floor((Math.random() * 255) + 1);
-			String[] command8 = { "/bin/bash", "-c",
-					"echo " + key + "| sudo -S ifconfig wlan0 192.168.1." + ip +" 255.255.255.0"};
+			String[] command8 = {
+					"/bin/bash",
+					"-c",
+					"echo " + key + "| sudo -S ifconfig wlan0 192.168.1." + ip
+							+ " 255.255.255.0" };
 			process = Runtime.getRuntime().exec(command8);
 			returnCode = process.waitFor();
 			System.out.println(command8);
