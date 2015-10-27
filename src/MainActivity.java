@@ -89,6 +89,7 @@ public class MainActivity extends JFrame implements KeyListener {
 							JOptionPane.ERROR_MESSAGE);
 				} else {
 					configAdhoc();
+					SoundRecorder s = new SoundRecorder();
 				}
 			}
 		});
