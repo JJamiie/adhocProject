@@ -11,7 +11,7 @@ public class SendingQueueTest {
 	}
 	
 	@Test
-	public void chunkCanBeAdded() {
+	public void chunkCanBeAdded() throws SenderNameIncorrectLengthException {
 		SendingQueue queue = new SendingQueue();		
 		AudioChunk sendingChunk = new AudioChunk("ta", 1, null);
 		queue.add(sendingChunk);
