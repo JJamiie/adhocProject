@@ -24,8 +24,6 @@ public class MainActivity extends JFrame implements KeyListener {
 	MainActivity th = this;
 	Listener listener;
 	
-	
-	
 	public static void main(String[] arg) {
 		new MainActivity();
 	}
