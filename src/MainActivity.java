@@ -9,11 +9,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.InetSocketAddress;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
@@ -27,13 +22,15 @@ public class MainActivity extends JFrame implements KeyListener {
 	ImagePanel join;
 	ImagePanel runframe;
 	MainActivity th = this;
-
+	Listener listener;
+	
+	
+	
 	public static void main(String[] arg) {
 		new MainActivity();
 	}
 
 	public MainActivity() {
-
 		this.setSize(400, 400);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height
@@ -45,25 +42,10 @@ public class MainActivity extends JFrame implements KeyListener {
 		this.setResizable(false);
 		this.setVisible(true);
 	}
-
-	public void broadcast(AudioChunk audio) throws InterruptedException,
-			IOException {
-		ServerSocketChannel ssChannel = ServerSocketChannel.open();
-		ssChannel.configureBlocking(true);
-		int port = 8000;
-		ssChannel.socket().bind(new InetSocketAddress(port));
-
-		while (true) {
-			SocketChannel sChannel = ssChannel.accept();
-
-			ObjectOutputStream oos = new ObjectOutputStream(sChannel.socket()
-					.getOutputStream());
-			oos.writeObject(audio);
-			oos.close();
-			System.out.println("Connection ended");
-		}
-	}
-
+	
+	// ############################################################################# //
+	// ############################# Frame Login ################################### //
+	// ############################################################################# //
 	
 	public void frameJoinChannel() {
 		join = new ImagePanel("picture/login.png");
@@ -102,12 +84,11 @@ public class MainActivity extends JFrame implements KeyListener {
 							"Please fill in your password.", "Error",
 							JOptionPane.ERROR_MESSAGE);
 				} else {
-					// configAdhoc();
+					configAdhoc();
 					frameRun();
 				}
 			}
 		});
-
 		join.add(usernameField);
 		join.add(ssidField);
 		join.add(keyField);
@@ -115,40 +96,9 @@ public class MainActivity extends JFrame implements KeyListener {
 		this.add(join);
 		this.revalidate();
 		this.repaint();
+		
 	}
-
-	public void frameRun() {
-		System.out.println("----Run-----");
-		runframe = new ImagePanel("picture/runframe.png");
-		runframe.setSize(400, 400);
-		runframe.setLayout(null);
-		PictureButton back = new PictureButton("picture/back.png",
-				"picture/backClick.png");
-		back.setBounds(370, 10, 21, 20);
-		back.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				th.remove(runframe);
-				frameJoinChannel();
-			}
-		});
-		runframe.add(back);
-		this.remove(join);
-		this.add(runframe);
-		this.revalidate();
-		this.repaint();
-	}
-
-	public void setStandartTextField(JTextField textField, String text) {
-		textField.setBackground(new Color(58, 65, 73));
-		textField.setForeground(Color.white);
-		textField.setBorder(null);
-		textField.setCaretColor(Color.white);
-		TextPrompt tp = new TextPrompt(text, textField);
-		tp.setForeground(new Color(106, 116, 127));
-	}
-
+	
 	public void configAdhoc() {
 		Process process;
 		try {
@@ -221,8 +171,78 @@ public class MainActivity extends JFrame implements KeyListener {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
 	}
+	
+	// ############################################################################# //
+	// ####################### Frame run steam sound ############################### //
+	// ############################################################################# //
+	
+	boolean speak = true; 
+	public void frameRun() {
+		//Start Thread listener
+		listener = new Listener();
+		listener.start();
+		
+		runframe = new ImagePanel("picture/runframe.png");
+		runframe.setSize(400, 400);
+		runframe.setLayout(null);
+		PictureButton back = new PictureButton("picture/back.png",
+				"picture/back_click.png");
+		back.setBounds(368, 10, 21, 20);
+		back.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				th.remove(runframe);
+				listener.CloseSocket();
+				listener.stop();
+				frameJoinChannel();
+			}
+		});
+		
+		PictureButton mic = new PictureButton("picture/TapMic.png","picture/SpeakNow.png");
+		mic.setBounds(159,330,75,48);
+		mic.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(isSpeak()){
+					System.out.println("Speak now"); // start broadcast 
+					setSpeak(false);
+				}else{
+					System.out.println("Tap mic"); // pause broadcast
+					setSpeak(true);
+				}	
+			}
+		});
+		
+		runframe.add(back);
+		runframe.add(mic);
+		this.remove(join);
+		this.add(runframe);
+		this.revalidate();
+		this.repaint();
+	}
+
+	public boolean isSpeak() {
+		return speak;
+	}
+	
+	public void setSpeak(boolean speak) {
+		this.speak = speak;
+	}
+	
+	// ########################################################################## //
+	
+	public void setStandartTextField(JTextField textField, String text) {
+		textField.setBackground(new Color(58, 65, 73));
+		textField.setForeground(Color.white);
+		textField.setBorder(null);
+		textField.setCaretColor(Color.white);
+		TextPrompt tp = new TextPrompt(text, textField);
+		tp.setForeground(new Color(106, 116, 127));
+	}
+
+	
 
 	public void exitListener() {
 		WindowListener exitListener = new WindowAdapter() {
@@ -239,6 +259,9 @@ public class MainActivity extends JFrame implements KeyListener {
 		};
 		this.addWindowListener(exitListener);
 	}
+	
+	
+
 
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -257,5 +280,6 @@ public class MainActivity extends JFrame implements KeyListener {
 		// TODO Auto-generated method stub
 
 	}
-
+	
+	
 }
