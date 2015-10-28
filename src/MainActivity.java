@@ -42,11 +42,11 @@ public class MainActivity extends JFrame implements KeyListener {
 		this.setResizable(false);
 		this.setVisible(true);
 	}
-	
+
 	// ############################################################################# //
 	// ############################# Frame Login ################################### //
 	// ############################################################################# //
-	
+
 	public void frameJoinChannel() {
 		join = new ImagePanel("picture/login.png");
 		join.setSize(400, 400);
