@@ -58,6 +58,8 @@ public class SoundRecorder extends Thread {
 				line.open(format);
 				System.out.println("Start capturing...");
 				while (active) {
+					System.out.println("Sound Recorder Thread:" + Thread.currentThread().getName());
+					
 					line.start(); // start capturing
 					// buffering
 					byte[] b = new byte[BUFFER_SIZE];
@@ -66,6 +68,8 @@ public class SoundRecorder extends Thread {
 					// send to others
 					AudioChunk sendingChunk = new AudioChunk("ta",
 							sequenceNumber, b);
+					System.out.println();
+					System.out.println("Recorded one chunk...");
 					MainActivity.sendingQueue.add(sendingChunk);
 				}
 			} catch (LineUnavailableException ex) {

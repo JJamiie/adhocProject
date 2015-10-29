@@ -23,7 +23,7 @@ public class MainActivity extends JFrame implements KeyListener {
 	ImagePanel runframe;
 	MainActivity th = this;
 	Listener listener;
-	SoundRecorder s = new SoundRecorder();
+	public static SoundRecorder s = new SoundRecorder();
 	public static SendingQueue sendingQueue = new SendingQueue();
 	
 	
@@ -31,6 +31,8 @@ public class MainActivity extends JFrame implements KeyListener {
 		new MainActivity();
 		// start sending queue
 		sendingQueue.start();
+		// start the sound recorder
+		s.start();
 	}
 
 	public MainActivity() {
@@ -55,15 +57,15 @@ public class MainActivity extends JFrame implements KeyListener {
 		join.setSize(400, 400);
 		join.setLayout(null);
 
-		ssidField = new JTextField();
+		ssidField = new JTextField("1234");
 		ssidField.setBounds(120, 170, 200, 30);
 		setStandartTextField(ssidField, "SSID");
 
-		usernameField = new JTextField();
+		usernameField = new JTextField("1234");
 		usernameField.setBounds(120, 215, 200, 30);
 		setStandartTextField(usernameField, "Username");
 
-		keyField = new JPasswordField();
+		keyField = new JPasswordField("jamie16130");
 		keyField.setBounds(120, 260, 200, 30);
 		setStandartTextField(keyField, "Password");
 
@@ -88,7 +90,6 @@ public class MainActivity extends JFrame implements KeyListener {
 							JOptionPane.ERROR_MESSAGE);
 				} else {
 					configAdhoc();
-					s.start();
 				}
 			}
 		});
