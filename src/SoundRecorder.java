@@ -7,7 +7,7 @@ import java.io.*;
  * A sample program is to demonstrate how to record sound in Java author:
  * www.codejava.net
  */
-public class SoundRecorder implements Runnable {
+public class SoundRecorder extends Thread {
 	// the line from which audio data is captured
 	TargetDataLine line;
 	public static final int BUFFER_SIZE = 1000;
@@ -29,13 +29,17 @@ public class SoundRecorder implements Runnable {
 	}
 
 	public void run() {
+		System.out.println("SoundRecoder record");
 		while (true) {
 			while(!active){
 				try {
-					wait();
+				 	synchronized (this) {
+				 		wait();
+					}
+					
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.out.println(e.getMessage());
 				}
 			}
 			
@@ -83,7 +87,9 @@ public class SoundRecorder implements Runnable {
 //	}
 	public void wake(){
 		active= true;
-		notifyAll();
+		synchronized (this) {
+			this.notify();
+		}
 	}
 	public void sleep(){
 		active =false;

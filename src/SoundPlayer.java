@@ -12,7 +12,7 @@ import javax.sound.sampled.DataLine;
 
 public class SoundPlayer extends Thread {
 	
-	public LinkedList<AudioChunk> playingQueue;
+	public LinkedList<AudioChunk> playingQueue = new LinkedList<>();;
 	
 	public synchronized void run() {
 		while (true) {
@@ -43,12 +43,13 @@ public class SoundPlayer extends Thread {
 //		length is the number of frames in the audioBytes
 		int length = SoundRecorder.BUFFER_SIZE / audioFormat.getFrameSize();
 		AudioInputStream audioInputStream = new AudioInputStream(inputStream, audioFormat, length);
-		
+		System.out.println("Audio bytes: "+audioBytes);
 		this.playSound(audioInputStream);
 	}
 	
 	public void playSound(AudioInputStream audioInputStream) {
 		try {
+			System.out.println(audioInputStream.getFrameLength());
 			Clip clip = AudioSystem.getClip();
 			clip.open(audioInputStream);
 			clip.start();

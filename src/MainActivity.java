@@ -29,7 +29,6 @@ public class MainActivity extends JFrame implements KeyListener {
 	
 	public static void main(String[] arg) {
 		new MainActivity();
-		
 		// start sending queue
 		sendingQueue.start();
 	}
@@ -89,7 +88,7 @@ public class MainActivity extends JFrame implements KeyListener {
 							JOptionPane.ERROR_MESSAGE);
 				} else {
 					configAdhoc();
-					
+					s.start();
 				}
 			}
 		});
@@ -100,6 +99,7 @@ public class MainActivity extends JFrame implements KeyListener {
 		this.add(join);
 		this.revalidate();
 		this.repaint();
+		
 		
 	}
 	
@@ -170,6 +170,7 @@ public class MainActivity extends JFrame implements KeyListener {
 			System.out.println(command8);
 			System.out.println("IP 192.168.1." + ip + ":= " + returnCode);
 			frameRun();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -213,7 +214,6 @@ public class MainActivity extends JFrame implements KeyListener {
 					System.out.println("Speak now"); // start broadcast 
 					s.wake();
 					setSpeak(false);
-					
 				}else{
 					System.out.println("Tap mic"); // pause broadcast
 					s.sleep();
@@ -268,7 +268,6 @@ public class MainActivity extends JFrame implements KeyListener {
 	}
 	
 	
-
 
 	@Override
 	public void keyPressed(KeyEvent e) {
