@@ -16,8 +16,6 @@ public class Broadcaster{
                 DatagramPacket msgPacket = new DatagramPacket(audio.getBytes(),
                         audio.getBytes().length, addr, PORT);
                 serverSocket.send(msgPacket);
-
-                Thread.sleep(500);
             }
         catch (IOException ex) {
             ex.printStackTrace();

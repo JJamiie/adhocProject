@@ -23,16 +23,21 @@ public class MainActivity extends JFrame implements KeyListener {
 	ImagePanel runframe;
 	MainActivity th = this;
 	Listener listener;
-	public static SoundRecorder s = new SoundRecorder();
-	public static SendingQueue sendingQueue = new SendingQueue();
+	
+	/**
+	 * แก้วิธีการเขียนนิดนึง ให้มัน test ง่ายขึ้น SoundRecorder จะต้องรับ param เป็น sendingQueue
+	 */
+	private static SendingQueue sendingQueue = new SendingQueue();
+	private static SoundRecorder soundRecorder = new SoundRecorder(sendingQueue);
 	
 	
 	public static void main(String[] arg) {
 		new MainActivity();
 		// start sending queue
 		sendingQueue.start();
+		
 		// start the sound recorder
-		s.start();
+		soundRecorder.start();
 	}
 
 	public MainActivity() {
@@ -213,11 +218,11 @@ public class MainActivity extends JFrame implements KeyListener {
 			public void actionPerformed(ActionEvent arg0) {
 				if(isSpeak()){
 					System.out.println("Speak now"); // start broadcast 
-					s.wake();
+					soundRecorder.wake();
 					setSpeak(false);
 				}else{
 					System.out.println("Tap mic"); // pause broadcast
-					s.sleep();
+					soundRecorder.sleep();
 					setSpeak(true);
 				}	
 			}

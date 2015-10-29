@@ -2,14 +2,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class SendingQueue extends Thread {
-	public ArrayList<AudioChunk> sendingQueue;
-	Broadcaster b = new Broadcaster();
+	public ArrayList<AudioChunk> sendingQueue = new ArrayList<AudioChunk>();
+	Broadcaster broadcaster = new Broadcaster();
+	
 	public SendingQueue() {
-		this.sendingQueue = new ArrayList<AudioChunk>();
+		
 	}
 	
 	
 	public synchronized void add(AudioChunk sendingChunk) {
+		System.out.println("sendingQueue is being added a job...");
 		sendingQueue.add(sendingChunk);
 		notifyAll();
 	}
@@ -19,18 +21,20 @@ public class SendingQueue extends Thread {
 	 * and shall not be called from the outside
 	 */
 	private void send(AudioChunk sendingChunk) throws InterruptedException, IOException {
-		System.out.print("calling broadcaster to send a chuk");
-		b.broadcast(sendingChunk);
+		System.out.println("calling broadcaster to send a chuk");
+		broadcaster.broadcast(sendingChunk);
 	}
 	
-	public synchronized void run () {
+	public void run () {
 		while (true) {
 			System.out.println("Sending Queue Thread:" + Thread.currentThread().getName());
 //			check whether there is anything to send ? if not go sleep
 //			it will be woken up by add();
-			if (sendingQueue.isEmpty()) {
+			while (sendingQueue.isEmpty()) {
 				try {
-					wait();
+					synchronized (this) {
+						wait();
+					}
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
