@@ -22,7 +22,9 @@ public class SoundPlayer extends Thread {
 			// it will be woken up by add();
 			if (playingQueue.isEmpty()) {
 				try {
-					wait();
+					synchronized (this) {
+						wait();
+					}
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
