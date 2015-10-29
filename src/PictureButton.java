@@ -19,7 +19,7 @@ public class PictureButton extends JButton{
 			present = ImageIO.read(PictureButton.class.getClassLoader().getResourceAsStream(path));
 				
 		}catch(IOException io){
-			
+			io.printStackTrace();
 		}
 		Dimension size = new Dimension(present.getWidth(),present.getHeight());
 		setSize(size);
@@ -46,11 +46,10 @@ public class PictureButton extends JButton{
 				// TODO Auto-generated method stub
 				ButtonModel model = (ButtonModel) e.getSource(); 
 				
-				if(model.isPressed()||model.isRollover()){
-					present = th.buttonChange;
+				if(model.isPressed()){ // model.isRollover()
+					if(present == th.buttonChange) present = th.buttonIcon;
+					else present = th.buttonChange;
 					repaint();
-				}else{
-					present = th.buttonIcon;
 				}
 			}
 		});
@@ -62,6 +61,7 @@ public class PictureButton extends JButton{
 		setOpaque(false);
 		setContentAreaFilled(false);
 	}
+
 	
 	public void paintComponent(Graphics g){
 		super.paintComponents(g);

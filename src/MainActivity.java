@@ -8,30 +8,22 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-
 
 public class MainActivity extends JFrame implements KeyListener {
 	private String key;
 	private JTextField ssidField;
 	private JPasswordField keyField;
 	private JTextField usernameField;
-
+	ImagePanel join;
+	ImagePanel runframe;
+	MainActivity th = this;
+	Listener listener;
+	
 	public static void main(String[] arg) {
 		new MainActivity();
 	}
@@ -48,28 +40,30 @@ public class MainActivity extends JFrame implements KeyListener {
 		this.setResizable(false);
 		this.setVisible(true);
 	}
-	    
+
+	// ############################################################################# //
+	// ############################# Frame Login ################################### //
+	// ############################################################################# //
+
 	public void frameJoinChannel() {
-		ImagePanel join = new ImagePanel("picture/login.png");
+		join = new ImagePanel("picture/login.png");
 		join.setSize(400, 400);
 		join.setLayout(null);
 
 		ssidField = new JTextField();
 		ssidField.setBounds(120, 170, 200, 30);
-		setStandartTextField(ssidField,"SSID");
-		
-		
+		setStandartTextField(ssidField, "SSID");
+
 		usernameField = new JTextField();
 		usernameField.setBounds(120, 215, 200, 30);
-		setStandartTextField(usernameField,"Username");
-		
-		
+		setStandartTextField(usernameField, "Username");
+
 		keyField = new JPasswordField();
 		keyField.setBounds(120, 260, 200, 30);
-		setStandartTextField(keyField,"Password");
-		
-		PictureButton joinButton = new PictureButton("picture/joinButton.png","picture/joinButtonClick.png");
-		joinButton.setText("Join");
+		setStandartTextField(keyField, "Password");
+
+		PictureButton joinButton = new PictureButton("picture/joinButton.png",
+				"picture/joinButtonClick.png");
 		joinButton.setBounds(64, 316, 261, 35);
 		joinButton.addActionListener(new ActionListener() {
 
@@ -83,7 +77,7 @@ public class MainActivity extends JFrame implements KeyListener {
 					JOptionPane.showMessageDialog(null,
 							"Please fill in your username.", "Error",
 							JOptionPane.ERROR_MESSAGE);
-				}else if(keyField.getText().isEmpty()){
+				} else if (keyField.getText().isEmpty()) {
 					JOptionPane.showMessageDialog(null,
 							"Please fill in your password.", "Error",
 							JOptionPane.ERROR_MESSAGE);
@@ -93,22 +87,14 @@ public class MainActivity extends JFrame implements KeyListener {
 				}
 			}
 		});
-
 		join.add(usernameField);
 		join.add(ssidField);
 		join.add(keyField);
 		join.add(joinButton);
 		this.add(join);
-
-	}
-
-	public void setStandartTextField(JTextField textField,String text){
-		textField.setBackground(new Color(58,65,73));
-		textField.setForeground(Color.white);
-		textField.setBorder(null);
-		textField.setCaretColor(Color.white);
-		TextPrompt tp = new TextPrompt(text, textField);
-		tp.setForeground(new Color(106,116,127));
+		this.revalidate();
+		this.repaint();
+		
 	}
 	
 	public void configAdhoc() {
@@ -168,20 +154,93 @@ public class MainActivity extends JFrame implements KeyListener {
 			System.out.println("Down:= " + returnCode);
 
 			int ip = (int) Math.floor((Math.random() * 255) + 1);
-			String[] command8 = { "/bin/bash", "-c",
-					"echo " + key + "| sudo -S ifconfig wlan0 192.168.1." + ip +" 255.255.255.0	" };
+			String[] command8 = {
+					"/bin/bash",
+					"-c",
+					"echo " + key + "| sudo -S ifconfig wlan0 192.168.1." + ip
+							+ " 255.255.255.0" };
 			process = Runtime.getRuntime().exec(command8);
 			returnCode = process.waitFor();
 			System.out.println(command8);
-			System.out.println("IP 192.168." + ip + ":= " + returnCode);
+			System.out.println("IP 192.168.1." + ip + ":= " + returnCode);
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
 	}
+	
+	// ############################################################################# //
+	// ####################### Frame run steam sound ############################### //
+	// ############################################################################# //
+	
+	boolean speak = true; 
+	public void frameRun() {
+		//Start Thread listener
+		listener = new Listener();
+		listener.start();
+		
+		runframe = new ImagePanel("picture/runframe.png");
+		runframe.setSize(400, 400);
+		runframe.setLayout(null);
+		PictureButton back = new PictureButton("picture/back.png",
+				"picture/back_click.png");
+		back.setBounds(368, 10, 21, 20);
+		back.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				th.remove(runframe);
+				listener.CloseSocket();
+				listener.stop();
+				frameJoinChannel();
+			}
+		});
+		
+		PictureButton mic = new PictureButton("picture/TapMic.png","picture/SpeakNow.png");
+		mic.setBounds(159,330,75,48);
+		mic.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(isSpeak()){
+					System.out.println("Speak now"); // start broadcast 
+					setSpeak(false);
+				}else{
+					System.out.println("Tap mic"); // pause broadcast
+					setSpeak(true);
+				}	
+			}
+		});
+		
+		runframe.add(back);
+		runframe.add(mic);
+		this.remove(join);
+		this.add(runframe);
+		this.revalidate();
+		this.repaint();
+	}
+
+	public boolean isSpeak() {
+		return speak;
+	}
+	
+	public void setSpeak(boolean speak) {
+		this.speak = speak;
+	}
+	
+	// ########################################################################## //
+	
+	public void setStandartTextField(JTextField textField, String text) {
+		textField.setBackground(new Color(58, 65, 73));
+		textField.setForeground(Color.white);
+		textField.setBorder(null);
+		textField.setCaretColor(Color.white);
+		TextPrompt tp = new TextPrompt(text, textField);
+		tp.setForeground(new Color(106, 116, 127));
+	}
+
+	
 
 	public void exitListener() {
 		WindowListener exitListener = new WindowAdapter() {
@@ -198,6 +257,9 @@ public class MainActivity extends JFrame implements KeyListener {
 		};
 		this.addWindowListener(exitListener);
 	}
+	
+	
+
 
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -216,5 +278,6 @@ public class MainActivity extends JFrame implements KeyListener {
 		// TODO Auto-generated method stub
 
 	}
-
+	
+	
 }
