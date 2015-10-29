@@ -23,9 +23,15 @@ public class MainActivity extends JFrame implements KeyListener {
 	ImagePanel runframe;
 	MainActivity th = this;
 	Listener listener;
+	SoundRecorder s = new SoundRecorder();
+	public static SendingQueue sendingQueue = new SendingQueue();
+	
 	
 	public static void main(String[] arg) {
 		new MainActivity();
+		
+		// start sending queue
+		sendingQueue.start();
 	}
 
 	public MainActivity() {
@@ -83,7 +89,7 @@ public class MainActivity extends JFrame implements KeyListener {
 							JOptionPane.ERROR_MESSAGE);
 				} else {
 					configAdhoc();
-					SoundRecorder s = new SoundRecorder();
+					
 				}
 			}
 		});
@@ -163,7 +169,7 @@ public class MainActivity extends JFrame implements KeyListener {
 			returnCode = process.waitFor();
 			System.out.println(command8);
 			System.out.println("IP 192.168.1." + ip + ":= " + returnCode);
-
+			frameRun();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -205,9 +211,12 @@ public class MainActivity extends JFrame implements KeyListener {
 			public void actionPerformed(ActionEvent arg0) {
 				if(isSpeak()){
 					System.out.println("Speak now"); // start broadcast 
+					s.wake();
 					setSpeak(false);
+					
 				}else{
 					System.out.println("Tap mic"); // pause broadcast
+					s.sleep();
 					setSpeak(true);
 				}	
 			}
