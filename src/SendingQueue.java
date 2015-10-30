@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 public class SendingQueue extends Thread {
 	public ArrayList<AudioChunk> sendingQueue;
-	Broadcaster b = new Broadcaster();
+	Broadcaster broadcaster;
 	public SendingQueue() {
 		this.sendingQueue = new ArrayList<AudioChunk>();
 	}
@@ -20,7 +20,7 @@ public class SendingQueue extends Thread {
 	 */
 	private void send(AudioChunk sendingChunk) throws InterruptedException, IOException {
 		System.out.print("calling broadcaster to send a chuk");
-		b.broadcast(sendingChunk);
+		broadcaster.broadcast(sendingChunk);
 	}
 	
 	public synchronized void run () {

@@ -10,7 +10,7 @@ import java.io.*;
 public class SoundRecorder extends Thread {
 	// the line from which audio data is captured
 	TargetDataLine line;
-	public static final int BUFFER_SIZE = 1000;
+	public static final int BUFFER_SIZE = 4000;
 
 	private boolean active = false;
 	int sequenceNumber = 1;
@@ -28,15 +28,13 @@ public class SoundRecorder extends Thread {
 		return format;
 	}
 
-	public void run() {
+	public synchronized void run() {
 		System.out.println("SoundRecoder record");
 		while (true) {
 			while(!active){
 				try {
-				 	synchronized (this) {
-				 		wait();
-					}
-					
+				 	wait();
+				
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					System.out.println(e.getMessage());
@@ -68,6 +66,7 @@ public class SoundRecorder extends Thread {
 					// send to others
 					AudioChunk sendingChunk = new AudioChunk("ta",
 							sequenceNumber, b);
+					sequenceNumber++;
 					System.out.println();
 					System.out.println("Recorded one chunk...");
 					MainActivity.sendingQueue.add(sendingChunk);
@@ -89,11 +88,9 @@ public class SoundRecorder extends Thread {
 //		line.close();
 //		System.out.println("Finished");
 //	}
-	public void wake(){
+	public synchronized void wake(){
 		active= true;
-		synchronized (this) {
-			this.notify();
-		}
+		notifyAll();
 	}
 	public void sleep(){
 		active =false;

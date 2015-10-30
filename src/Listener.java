@@ -10,6 +10,7 @@ public class Listener extends Thread {
 	DatagramSocket aSocket = null;
 	HashMap<String, Integer> hashmap = new HashMap<String, Integer>();
 	SendingQueue sendQueue = new SendingQueue();
+
 	public Listener() {
 		soundPlayer = new SoundPlayer();
 		soundPlayer.start();
@@ -18,7 +19,7 @@ public class Listener extends Thread {
 	public void run() {
 		System.out.println("Thread Listener Start");
 		int PORT = 55555;
-		
+
 		try {
 			aSocket = new DatagramSocket(PORT);
 			aSocket.setBroadcast(true);
@@ -27,21 +28,29 @@ public class Listener extends Thread {
 				DatagramPacket receivePacket = new DatagramPacket(buffer,
 						buffer.length);
 				aSocket.receive(receivePacket);
-				System.out.println("Receive packet:" + receivePacket.getLength());
+				System.out.println("Receive packet:"
+						+ receivePacket.getLength());
 				System.out.println("Request IP address: "
 						+ receivePacket.getAddress() + " Port: "
 						+ receivePacket.getPort());
 				try {
 					AudioChunk receiveChunk = new AudioChunk(
 							receivePacket.getData());
-//					if (hashmap.containsKey(receiveChunk.senderName)) {
-						//if (receiveChunk.sequenceNumber > hashmap
-					//			.get(receiveChunk.senderName)) {
+					if (hashmap.containsKey(receiveChunk.senderName)) {
+						if (receiveChunk.sequenceNumber > hashmap
+								.get(receiveChunk.senderName)) {
 							soundPlayer.addSoundToQueue(receiveChunk);
-					//		hashmap.put(receiveChunk.senderName, receiveChunk.sequenceNumber);
-					//		sendQueue.add(receiveChunk);
-					//	}
-					//}
+							hashmap.put(receiveChunk.senderName,
+									receiveChunk.sequenceNumber);
+							sendQueue.add(receiveChunk);
+						}
+					}
+					else{
+						soundPlayer.addSoundToQueue(receiveChunk);
+						hashmap.put(receiveChunk.senderName,
+								receiveChunk.sequenceNumber);
+						sendQueue.add(receiveChunk);
+					}
 				} catch (AudioChunkIncorrectLengthException e) {
 					e.printStackTrace();
 				}
