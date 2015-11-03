@@ -46,6 +46,10 @@ public class Listener extends Thread {
 					 * New sender is found create a new DoubleSoundPlayer (each sender
 					 * has his own DoubleSoundPlayer)
 					 */
+					if(!receivePacket.getAddress().equals(MainActivity.IP)){
+						continue;
+					}
+					
 					if (!maxSequenceNumber.containsKey(senderName)) {
 						maxSequenceNumber.put(senderName, new Integer(
 								sequenceNumber));

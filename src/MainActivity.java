@@ -5,9 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -24,6 +21,7 @@ public class MainActivity extends JFrame implements KeyListener {
 	MainActivity th = this;
 	Listener listener;
 	public static final int IP = (int) Math.floor((Math.random() * 255) + 1);
+	
 	/**
 	 * แก้วิธีการเขียนนิดนึง ให้มัน test ง่ายขึ้น SoundRecorder จะต้องรับ param
 	 * เป็น sendingQueue
@@ -96,6 +94,7 @@ public class MainActivity extends JFrame implements KeyListener {
 							"Please fill in your password.", "Error",
 							JOptionPane.ERROR_MESSAGE);
 				} else {
+					soundRecorder.setUsername(usernameField.getText());
 					configAdhoc();
 				}
 			}

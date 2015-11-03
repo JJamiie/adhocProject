@@ -1,7 +1,4 @@
 import javax.sound.sampled.*;
-import javax.swing.plaf.SliderUI;
-
-import java.io.*;
 
 /**
  * A sample program is to demonstrate how to record sound in Java author:
@@ -10,8 +7,10 @@ import java.io.*;
 public class SoundRecorder extends Thread {
 	// the line from which audio data is captured
 	TargetDataLine line;
+	private String username ;
+	
 
-	public static final int BUFFER_SIZE = 1000;
+	public static final int BUFFER_SIZE = 10000;
 	private SendingQueue sendingQueue;
 
 	private boolean active = false;
@@ -69,7 +68,7 @@ public class SoundRecorder extends Thread {
 					line.read(b, 0, BUFFER_SIZE);
 
 					// send to others
-					AudioChunk sendingChunk = new AudioChunk("ta",
+					AudioChunk sendingChunk = new AudioChunk(username,
 							sequenceNumber, b);
 					sequenceNumber++;
 //					System.out.println();
@@ -93,6 +92,11 @@ public class SoundRecorder extends Thread {
 	public void sleep() {
 		active = false;
 	}
+	
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
 	/**
 	 * Entry to run the program it should be only one entry to the program and
 	 * nots here, since I changed the structure of the program
