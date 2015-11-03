@@ -33,10 +33,10 @@ public class Listener extends Thread {
 				DatagramPacket receivePacket = new DatagramPacket(buffer,
 						buffer.length);
 				aSocket.receive(receivePacket);
-
+				
 				// if packet is sent to itself
-				if (!receivePacket.getAddress().equals(
-						"/192.168.1." + MainActivity.IP)) {
+				String address = receivePacket.getAddress().toString();
+				if (address.equals("/192.168.1." + MainActivity.IP)) {
 					continue;
 				}
 
@@ -55,6 +55,8 @@ public class Listener extends Thread {
 					System.out.println("Request IP address: "
 							+ receivePacket.getAddress() + " Port: "
 							+ receivePacket.getPort());
+					
+					System.out.println(senderName + " :" + sequenceNumber);
 
 					if (!maxSequenceNumber.containsKey(senderName)) {
 						maxSequenceNumber.put(senderName, new Integer(

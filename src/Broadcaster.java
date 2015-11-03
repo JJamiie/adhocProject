@@ -16,11 +16,13 @@ public class Broadcaster {
 		DatagramSocket serverSocket = null;
 		try {
 			serverSocket = new DatagramSocket();
+			int cw = (int)Math.random()*20;
+			Thread.sleep(cw);
 			DatagramPacket msgPacket = new DatagramPacket(audio.getBytes(),
 					audio.getBytes().length, addr, PORT);
 			serverSocket.send(msgPacket);
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			ex.printStackTrace()	;
 		} finally {
 			if (serverSocket != null) {
 				serverSocket.close();

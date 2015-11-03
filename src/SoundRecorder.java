@@ -9,8 +9,7 @@ public class SoundRecorder extends Thread {
 	TargetDataLine line;
 	private String username ;
 	
-
-	public static final int BUFFER_SIZE = 10000;
+	public static final int BUFFER_SIZE = 2000;
 	private SendingQueue sendingQueue;
 
 	private boolean active = false;
@@ -59,14 +58,18 @@ public class SoundRecorder extends Thread {
 
 				line = (TargetDataLine) AudioSystem.getLine(info);
 				line.open(format);
+				
 				// moving the line.start() out of the loop hoping this would
 				// make playing smoother :D
 				line.start(); // start capturing
 				while (active) {
 					// buffering
+					long start_time = System.nanoTime();
 					byte[] b = new byte[BUFFER_SIZE];
-					line.read(b, 0, BUFFER_SIZE);
-
+					
+					int l = line.read(b, 0, BUFFER_SIZE);
+					System.out.println("byte read: "+ l);
+					System.out.println("Time:"+(System.nanoTime()-start_time)/1000000.0);
 					// send to others
 					AudioChunk sendingChunk = new AudioChunk(username,
 							sequenceNumber, b);
@@ -74,6 +77,7 @@ public class SoundRecorder extends Thread {
 //					System.out.println();
 //					System.out.println("Recorded one chunk...");
 					sendingQueue.add(sendingChunk);
+					
 				}
 			} catch (LineUnavailableException ex) {
 				ex.printStackTrace();

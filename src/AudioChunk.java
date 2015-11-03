@@ -56,20 +56,27 @@ public class AudioChunk {
 		byte[] result = new byte[4];
 
 		result[0] = (byte) ((intValue & 0xFF000000) >> 24);
+		System.out.println(result[0]);
 		result[1] = (byte) ((intValue & 0x00FF0000) >> 16);
+		System.out.println(result[1]);
 		result[2] = (byte) ((intValue & 0x0000FF00) >> 8);
+		System.out.println(result[2]);
 		result[3] = (byte) ((intValue & 0x000000FF) >> 0);
-
+		System.out.println(result[3]);
 		return result;
 	}
 	
 	public static int bytesToInt(byte[] intBytes) {
 		int result = 0;
 		
-		result |= intBytes[0] << 24;
-		result |= intBytes[1] << 16;
-		result |= intBytes[2] << 8;
-		result |= intBytes[3] << 0;
+		result |= (intBytes[0] & (0xff) | 0) << 24;
+		System.out.println(result);
+		result |= (intBytes[1] & (0xff) | 0) << 16;
+		System.out.println(result);
+		result |= (intBytes[2] & (0xff) | 0) << 8;
+		System.out.println(result);
+		result |= (intBytes[3] & (0xff) | 0) << 0;
+		System.out.println(result);
 		
 		return result;
 	}

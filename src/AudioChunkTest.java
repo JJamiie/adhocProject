@@ -21,7 +21,8 @@ public class AudioChunkTest {
 	@Test
 	public void canBeTurnedIntoBytesAndTurnedBackSafely() throws SenderNameIncorrectLengthException, AudioChunkIncorrectLengthException {
 		byte[] bytes = new byte[SoundRecorder.BUFFER_SIZE];
-		AudioChunk chunk = new AudioChunk("ta", 1, bytes);
+		int sq = 512;
+		AudioChunk chunk = new AudioChunk("ta", sq, bytes);
 		
 		byte[] audioChunkBytes = chunk.getBytes();
 		AudioChunk turnedBackChunk = new AudioChunk(audioChunkBytes);
