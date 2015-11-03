@@ -23,34 +23,41 @@ public class MainActivity extends JFrame implements KeyListener {
 	ImagePanel runframe;
 	MainActivity th = this;
 	Listener listener;
-	public static SoundRecorder s = new SoundRecorder();
-	public static SendingQueue sendingQueue = new SendingQueue();
-	
-	
+	public static final int IP = (int) Math.floor((Math.random() * 255) + 1);
+	/**
+	 * แก้วิธีการเขียนนิดนึง ให้มัน test ง่ายขึ้น SoundRecorder จะต้องรับ param
+	 * เป็น sendingQueue
+	 */
+	private static SendingQueue sendingQueue = new SendingQueue();
+	private static SoundRecorder soundRecorder = new SoundRecorder(sendingQueue);
+
 	public static void main(String[] arg) {
 		new MainActivity();
 		// start sending queue
 		sendingQueue.start();
+
 		// start the sound recorder
-		s.start();
+		soundRecorder.start();
 	}
 
 	public MainActivity() {
 		this.setSize(400, 400);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height
-				/ 2 - this.getSize().height / 2-50);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				/ 2 - this.getSize().height / 2 - 50);
 		addKeyListener(this);
-		exitListener();
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frameJoinChannel();
 		this.setResizable(false);
 		this.setVisible(true);
 	}
 
-	// ############################################################################# //
-	// ############################# Frame Login ################################### //
-	// ############################################################################# //
+	// #############################################################################
+	// //
+	// ############################# Frame Login
+	// ################################### //
+	// #############################################################################
+	// //
 
 	public void frameJoinChannel() {
 		join = new ImagePanel("picture/login.png");
@@ -100,10 +107,9 @@ public class MainActivity extends JFrame implements KeyListener {
 		this.add(join);
 		this.revalidate();
 		this.repaint();
-		
-		
+
 	}
-	
+
 	public void configAdhoc() {
 		Process process;
 		try {
@@ -160,35 +166,39 @@ public class MainActivity extends JFrame implements KeyListener {
 			System.out.println(command7);
 			System.out.println("Down:= " + returnCode);
 
-			int ip = (int) Math.floor((Math.random() * 255) + 1);
+			
 			String[] command8 = {
 					"/bin/bash",
 					"-c",
-					"echo " + key + "| sudo -S ifconfig wlan0 192.168.1." + ip
+					"echo " + key + "| sudo -S ifconfig wlan0 192.168.1." + IP
 							+ " 255.255.255.0" };
 			process = Runtime.getRuntime().exec(command8);
 			returnCode = process.waitFor();
 			System.out.println(command8);
-			System.out.println("IP 192.168.1." + ip + ":= " + returnCode);
+			System.out.println("IP 192.168.1." + IP + ":= " + returnCode);
 			frameRun();
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	// ############################################################################# //
-	// ####################### Frame run steam sound ############################### //
-	// ############################################################################# //
-	
-	boolean speak = true; 
+
+	// #############################################################################
+	// //
+	// ####################### Frame run steam sound
+	// ############################### //
+	// #############################################################################
+	// //
+
+	boolean speak = true;
+
 	public void frameRun() {
-		//Start Thread listener
+		// Start Thread listener
 		listener = new Listener();
 		listener.start();
-		
+
 		runframe = new ImagePanel("picture/runframe.png");
 		runframe.setSize(400, 400);
 		runframe.setLayout(null);
@@ -205,24 +215,25 @@ public class MainActivity extends JFrame implements KeyListener {
 				frameJoinChannel();
 			}
 		});
-		
-		PictureButton mic = new PictureButton("picture/TapMic.png","picture/SpeakNow.png");
-		mic.setBounds(159,330,75,48);
+
+		PictureButton mic = new PictureButton("picture/TapMic.png",
+				"picture/SpeakNow.png");
+		mic.setBounds(159, 330, 75, 48);
 		mic.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if(isSpeak()){
-					System.out.println("Speak now"); // start broadcast 
-					s.wake();
+				if (isSpeak()) {
+					System.out.println("Speak now"); // start broadcast
+					soundRecorder.wake();
 					setSpeak(false);
-				}else{
+				} else {
 					System.out.println("Tap mic"); // pause broadcast
-					s.sleep();
+					soundRecorder.sleep();
 					setSpeak(true);
-				}	
+				}
 			}
 		});
-		
+
 		runframe.add(back);
 		runframe.add(mic);
 		this.remove(join);
@@ -234,13 +245,14 @@ public class MainActivity extends JFrame implements KeyListener {
 	public boolean isSpeak() {
 		return speak;
 	}
-	
+
 	public void setSpeak(boolean speak) {
 		this.speak = speak;
 	}
-	
-	// ########################################################################## //
-	
+
+	// ##########################################################################
+	// //
+
 	public void setStandartTextField(JTextField textField, String text) {
 		textField.setBackground(new Color(58, 65, 73));
 		textField.setForeground(Color.white);
@@ -249,26 +261,6 @@ public class MainActivity extends JFrame implements KeyListener {
 		TextPrompt tp = new TextPrompt(text, textField);
 		tp.setForeground(new Color(106, 116, 127));
 	}
-
-	
-
-	public void exitListener() {
-		WindowListener exitListener = new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				int confirm = JOptionPane.showOptionDialog(null,
-						"Are You Sure to Close Application?",
-						"Exit Confirmation", JOptionPane.YES_NO_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, null, null);
-				if (confirm == 0) {
-					System.exit(0);
-				}
-			}
-		};
-		this.addWindowListener(exitListener);
-	}
-	
-	
 
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -287,6 +279,5 @@ public class MainActivity extends JFrame implements KeyListener {
 		// TODO Auto-generated method stub
 
 	}
-	
-	
+
 }

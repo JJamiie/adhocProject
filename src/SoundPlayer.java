@@ -14,15 +14,17 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class SoundPlayer extends Thread {
 
-	public LinkedList<AudioChunk> playingQueue = new LinkedList<>();;
+	private LinkedList<AudioChunk> playingQueue = new LinkedList<AudioChunk>();
 
-	public synchronized void run() {
+	public void run() {
 		while (true) {
 			// check whether there is anything to play ? if not go sleep
 			// it will be woken up by add();
 			if (playingQueue.isEmpty()) {
 				try {
-					wait();
+					synchronized (this) {
+						wait();
+					}
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -41,6 +43,7 @@ public class SoundPlayer extends Thread {
 
 	public synchronized void addSoundToQueue(AudioChunk receivingChunk) {
 		this.playingQueue.add(receivingChunk);
+		System.out.println("Queue size:" + playingQueue.size());
 		notifyAll();
 	}
 
@@ -51,12 +54,12 @@ public class SoundPlayer extends Thread {
 		int length = SoundRecorder.BUFFER_SIZE / audioFormat.getFrameSize();
 		AudioInputStream audioInputStream = new AudioInputStream(inputStream,
 				audioFormat, length);
-//		
+		
 //		String filePath = "/home/jamie/workspace/wirelessProject/src/1.wav";
 //		File fileIn = new File(filePath);
 //		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(fileIn);
 		
-		this.playSound(audioInputStream);
+		playSound(audioInputStream);
 	}
 
 	public void playSound(AudioInputStream audioInputStream) {
@@ -68,8 +71,6 @@ public class SoundPlayer extends Thread {
 			Clip clip = (Clip) AudioSystem.getLine(info);
 			clip.open(audioInputStream);
 			clip.start();
-
-			//Thread.sleep(5000);
 			
 			while (!clip.isRunning()) {
 				Thread.sleep(1);
@@ -86,20 +87,5 @@ public class SoundPlayer extends Thread {
 			e.printStackTrace();
 		}
 	}
-
-	// public void playSound(String filePath) {
-	// System.out.println("playing sound from file:" + filePath);
-	// try {
-	// File fileIn = new File(filePath);
-	// AudioInputStream audioInputStream =
-	// AudioSystem.getAudioInputStream(fileIn);
-	//
-	// this.playSound(audioInputStream);
-	//
-	// } catch (Exception e) {
-	// System.err.println(e.getMessage());
-	// }
-	//
-	// System.out.println("playing sound ends ...");
-	// }
+	
 }

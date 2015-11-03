@@ -5,15 +5,19 @@ import java.net.SocketException;
 import java.util.HashMap;
 
 public class Listener extends Thread {
-	private SoundPlayer soundPlayer;
 	private int oldSequenceNumber = -1;
 	DatagramSocket aSocket = null;
-	HashMap<String, Integer> hashmap = new HashMap<String, Integer>();
+
+	private HashMap<String, Integer> maxSequenceNumber = new HashMap<String, Integer>();
+	// let each sender has his own DoubleSoundPlayer (make sound playable at the same
+	// time)
+	private HashMap<String, DoubleSoundPlayer> DoubleSoundPlayerBySender = new HashMap<String, DoubleSoundPlayer>();
+	
 	SendingQueue sendQueue = new SendingQueue();
 
 	public Listener() {
-		soundPlayer = new SoundPlayer();
-		soundPlayer.start();
+		// DoubleSoundPlayer = new DoubleSoundPlayer();
+		// DoubleSoundPlayer.start();
 	}
 
 	public void run() {
@@ -28,29 +32,52 @@ public class Listener extends Thread {
 				DatagramPacket receivePacket = new DatagramPacket(buffer,
 						buffer.length);
 				aSocket.receive(receivePacket);
-				System.out.println("Receive packet:"
-						+ receivePacket.getLength());
 				System.out.println("Request IP address: "
 						+ receivePacket.getAddress() + " Port: "
 						+ receivePacket.getPort());
 				try {
 					AudioChunk receiveChunk = new AudioChunk(
 							receivePacket.getData());
-					if (hashmap.containsKey(receiveChunk.senderName)) {
-						if (receiveChunk.sequenceNumber > hashmap
-								.get(receiveChunk.senderName)) {
-							soundPlayer.addSoundToQueue(receiveChunk);
-							hashmap.put(receiveChunk.senderName,
-									receiveChunk.sequenceNumber);
-							sendQueue.add(receiveChunk);
-						}
+
+					String senderName = receiveChunk.senderName;
+					int sequenceNumber = receiveChunk.sequenceNumber;
+
+					/*
+					 * New sender is found create a new DoubleSoundPlayer (each sender
+					 * has his own DoubleSoundPlayer)
+					 */
+					if (!maxSequenceNumber.containsKey(senderName)) {
+						maxSequenceNumber.put(senderName, new Integer(
+								sequenceNumber));
+
+						DoubleSoundPlayer newDoubleSoundPlayer = new DoubleSoundPlayer();
+						
+						DoubleSoundPlayerBySender.put(senderName, newDoubleSoundPlayer);
 					}
-					else{
-						soundPlayer.addSoundToQueue(receiveChunk);
-						hashmap.put(receiveChunk.senderName,
-								receiveChunk.sequenceNumber);
-						sendQueue.add(receiveChunk);
+
+					// the packet is the old one (we've seen this before)
+					if (sequenceNumber <= maxSequenceNumber.get(senderName)
+							.intValue()) {
+						// drop packet
+						continue;
 					}
+
+					// Repeat the chunk (continue the flood)
+					sendQueue.add(receiveChunk);
+
+					// Play the sound
+					DoubleSoundPlayerBySender.get(senderName).playSound(
+							receiveChunk);
+
+					// if (hashmap.containsKey(receiveChunk.senderName)) {
+					// if (receiveChunk.sequenceNumber > hashmap
+					// .get(receiveChunk.senderName)) {
+					// DoubleSoundPlayer.addSoundToQueue(receiveChunk);
+					// hashmap.put(receiveChunk.senderName,
+					// receiveChunk.sequenceNumber);
+					// sendQueue.add(receiveChunk);
+					// }
+					// }
 				} catch (AudioChunkIncorrectLengthException e) {
 					e.printStackTrace();
 				}
@@ -68,13 +95,13 @@ public class Listener extends Thread {
 		}
 	}
 
-	public SoundPlayer getSoundPlayer() {
-		return soundPlayer;
-	}
-
-	public void setSoundPlayer(SoundPlayer soundPlayer) {
-		this.soundPlayer = soundPlayer;
-	}
+	// public DoubleSoundPlayer getDoubleSoundPlayer() {
+	// return DoubleSoundPlayer;
+	// }
+	//
+	// public void setDoubleSoundPlayer(DoubleSoundPlayer DoubleSoundPlayer) {
+	// this.DoubleSoundPlayer = DoubleSoundPlayer;
+	// }
 
 	public void CloseSocket() {
 		aSocket.close();

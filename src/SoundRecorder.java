@@ -10,10 +10,17 @@ import java.io.*;
 public class SoundRecorder extends Thread {
 	// the line from which audio data is captured
 	TargetDataLine line;
-	public static final int BUFFER_SIZE = 4000;
+
+	public static final int BUFFER_SIZE = 1000;
+	private SendingQueue sendingQueue;
 
 	private boolean active = false;
-	int sequenceNumber = 1;
+	private int sequenceNumber = 1;
+
+	public SoundRecorder(SendingQueue sendingQueue) {
+		this.sendingQueue = sendingQueue;
+	}
+
 	/**
 	 * Defines an audio format
 	 */
@@ -31,16 +38,15 @@ public class SoundRecorder extends Thread {
 	public synchronized void run() {
 		System.out.println("SoundRecoder record");
 		while (true) {
-			while(!active){
+			while (!active) {
 				try {
-				 	wait();
-				
+					wait();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					System.out.println(e.getMessage());
 				}
 			}
-			
+
 			try {
 				AudioFormat format = SoundRecorder.getAudioFormat();
 				DataLine.Info info = new DataLine.Info(TargetDataLine.class,
@@ -54,11 +60,10 @@ public class SoundRecorder extends Thread {
 
 				line = (TargetDataLine) AudioSystem.getLine(info);
 				line.open(format);
-				System.out.println("Start capturing...");
+				// moving the line.start() out of the loop hoping this would
+				// make playing smoother :D
+				line.start(); // start capturing
 				while (active) {
-					System.out.println("Sound Recorder Thread:" + Thread.currentThread().getName());
-					
-					line.start(); // start capturing
 					// buffering
 					byte[] b = new byte[BUFFER_SIZE];
 					line.read(b, 0, BUFFER_SIZE);
@@ -67,9 +72,9 @@ public class SoundRecorder extends Thread {
 					AudioChunk sendingChunk = new AudioChunk("ta",
 							sequenceNumber, b);
 					sequenceNumber++;
-					System.out.println();
-					System.out.println("Recorded one chunk...");
-					MainActivity.sendingQueue.add(sendingChunk);
+//					System.out.println();
+//					System.out.println("Recorded one chunk...");
+					sendingQueue.add(sendingChunk);
 				}
 			} catch (LineUnavailableException ex) {
 				ex.printStackTrace();
@@ -80,20 +85,13 @@ public class SoundRecorder extends Thread {
 		}
 	}
 
-	/**
-	 * Closes the target data line to finish capturing and recording
-	 */
-//	void finish() {
-//		line.stop();
-//		line.close();
-//		System.out.println("Finished");
-//	}
-	public synchronized void wake(){
-		active= true;
+	public synchronized void wake() {
+		active = true;
 		notifyAll();
 	}
-	public void sleep(){
-		active =false;
+
+	public void sleep() {
+		active = false;
 	}
 	/**
 	 * Entry to run the program it should be only one entry to the program and
