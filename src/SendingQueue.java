@@ -25,8 +25,8 @@ public class SendingQueue extends Thread {
 	public synchronized void run() {
 		
 		while (true) {
-			System.out.println("Sending Queue Thread:"
-					+ Thread.currentThread().getName());
+//			System.out.println("Sending Queue Thread:"
+//					+ Thread.currentThread().getName());
 			// check whether there is anything to send ? if not go sleep
 			// it will be woken up by add();
 			while (sendingQueue.isEmpty()) {

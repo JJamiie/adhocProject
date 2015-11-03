@@ -9,10 +9,11 @@ public class Listener extends Thread {
 	DatagramSocket aSocket = null;
 
 	private HashMap<String, Integer> maxSequenceNumber = new HashMap<String, Integer>();
-	// let each sender has his own DoubleSoundPlayer (make sound playable at the same
+	// let each sender has his own DoubleSoundPlayer (make sound playable at the
+	// same
 	// time)
 	private HashMap<String, DoubleSoundPlayer> DoubleSoundPlayerBySender = new HashMap<String, DoubleSoundPlayer>();
-	
+
 	SendingQueue sendQueue = new SendingQueue();
 
 	public Listener() {
@@ -32,9 +33,13 @@ public class Listener extends Thread {
 				DatagramPacket receivePacket = new DatagramPacket(buffer,
 						buffer.length);
 				aSocket.receive(receivePacket);
-				System.out.println("Request IP address: "
-						+ receivePacket.getAddress() + " Port: "
-						+ receivePacket.getPort());
+
+				// if packet is sent to itself
+				if (!receivePacket.getAddress().equals(
+						"/192.168.1." + MainActivity.IP)) {
+					continue;
+				}
+
 				try {
 					AudioChunk receiveChunk = new AudioChunk(
 							receivePacket.getData());
@@ -43,20 +48,22 @@ public class Listener extends Thread {
 					int sequenceNumber = receiveChunk.sequenceNumber;
 
 					/*
-					 * New sender is found create a new DoubleSoundPlayer (each sender
-					 * has his own DoubleSoundPlayer)
+					 * New sender is found create a new DoubleSoundPlayer (each
+					 * sender has his own DoubleSoundPlayer)
 					 */
-					if(!receivePacket.getAddress().equals(MainActivity.IP)){
-						continue;
-					}
-					
+
+					System.out.println("Request IP address: "
+							+ receivePacket.getAddress() + " Port: "
+							+ receivePacket.getPort());
+
 					if (!maxSequenceNumber.containsKey(senderName)) {
 						maxSequenceNumber.put(senderName, new Integer(
 								sequenceNumber));
 
 						DoubleSoundPlayer newDoubleSoundPlayer = new DoubleSoundPlayer();
-						
-						DoubleSoundPlayerBySender.put(senderName, newDoubleSoundPlayer);
+
+						DoubleSoundPlayerBySender.put(senderName,
+								newDoubleSoundPlayer);
 					}
 
 					// the packet is the old one (we've seen this before)
