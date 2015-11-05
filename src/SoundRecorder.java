@@ -8,7 +8,9 @@ public class SoundRecorder extends Thread {
 	// the line from which audio data is captured
 	TargetDataLine line;
 	private String username ;
-	
+	static float sampleRate = 16000;
+	static int sampleSizeInBits = 8;
+//	public static final int BUFFER_SIZE = (int)(sampleRate*sampleSizeInBits/8*125/1000);
 	public static final int BUFFER_SIZE = 2000;
 	private SendingQueue sendingQueue;
 
@@ -23,8 +25,7 @@ public class SoundRecorder extends Thread {
 	 * Defines an audio format
 	 */
 	public static AudioFormat getAudioFormat() {
-		float sampleRate = 16000;
-		int sampleSizeInBits = 8;
+		System.out.println("buffer"+BUFFER_SIZE);
 		int channels = 1;
 		boolean signed = true;
 		boolean bigEndian = true;
@@ -73,6 +74,10 @@ public class SoundRecorder extends Thread {
 					// send to others
 					AudioChunk sendingChunk = new AudioChunk(username,
 							sequenceNumber, b);
+					
+//					update max sequence number
+					Listener.maxSequenceNumber.put(username, new Integer(sequenceNumber));
+					
 					sequenceNumber++;
 //					System.out.println();
 //					System.out.println("Recorded one chunk...");

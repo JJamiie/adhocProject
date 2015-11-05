@@ -21,7 +21,7 @@ public class MainActivity extends JFrame implements KeyListener {
 	MainActivity th = this;
 	Listener listener;
 	public static final int IP = (int) Math.floor((Math.random() * 255) + 1);
-	
+
 	/**
 	 * แก้วิธีการเขียนนิดนึง ให้มัน test ง่ายขึ้น SoundRecorder จะต้องรับ param
 	 * เป็น sendingQueue
@@ -66,7 +66,7 @@ public class MainActivity extends JFrame implements KeyListener {
 		ssidField.setBounds(120, 170, 200, 30);
 		setStandartTextField(ssidField, "SSID");
 
-		usernameField = new JTextField("1234");
+		usernameField = new JTextField("JJamie");
 		usernameField.setBounds(120, 215, 200, 30);
 		setStandartTextField(usernameField, "Username");
 
@@ -119,6 +119,13 @@ public class MainActivity extends JFrame implements KeyListener {
 			int returnCode = process.waitFor();
 			System.out.println(command1);
 			System.out.println("Service stop:= " + returnCode);
+			if (returnCode != 0) {
+				th.remove(join);
+				JOptionPane.showMessageDialog(null, "Password wrong", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				frameJoinChannel();
+				return;
+			}
 
 			String[] command2 = { "/bin/bash", "-c",
 					"echo " + key + "| sudo -S ip link set wlan0 down" };
@@ -165,7 +172,6 @@ public class MainActivity extends JFrame implements KeyListener {
 			System.out.println(command7);
 			System.out.println("Down:= " + returnCode);
 
-			
 			String[] command8 = {
 					"/bin/bash",
 					"-c",

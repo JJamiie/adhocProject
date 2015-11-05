@@ -8,7 +8,7 @@ public class Listener extends Thread {
 	private int oldSequenceNumber = -1;
 	DatagramSocket aSocket = null;
 
-	private HashMap<String, Integer> maxSequenceNumber = new HashMap<String, Integer>();
+	public static HashMap<String, Integer> maxSequenceNumber = new HashMap<String, Integer>();
 	// let each sender has his own DoubleSoundPlayer (make sound playable at the
 	// same
 	// time)
@@ -19,6 +19,7 @@ public class Listener extends Thread {
 	public Listener() {
 		// DoubleSoundPlayer = new DoubleSoundPlayer();
 		// DoubleSoundPlayer.start();
+		sendQueue.start();
 	}
 
 	public void run() {
@@ -33,10 +34,11 @@ public class Listener extends Thread {
 				DatagramPacket receivePacket = new DatagramPacket(buffer,
 						buffer.length);
 				aSocket.receive(receivePacket);
-				
+
 				// if packet is sent to itself
 				String address = receivePacket.getAddress().toString();
 				if (address.equals("/192.168.1." + MainActivity.IP)) {
+					System.out.println("repeat IP.....................");
 					continue;
 				}
 
@@ -49,13 +51,13 @@ public class Listener extends Thread {
 
 					/*
 					 * New sender is found create a new DoubleSoundPlayer (each
-					 * sender has his own DoubleSoundPlayer)
+					 * sender has his owFn DoubleSoundPlayer)
 					 */
 
 					System.out.println("Request IP address: "
 							+ receivePacket.getAddress() + " Port: "
 							+ receivePacket.getPort());
-					
+
 					System.out.println(senderName + " :" + sequenceNumber);
 
 					if (!maxSequenceNumber.containsKey(senderName)) {
@@ -68,12 +70,18 @@ public class Listener extends Thread {
 								newDoubleSoundPlayer);
 					}
 
+					System.out.println("sequenceNumber" + sequenceNumber);
+					System.out.println("sendername" + senderName);
+					System.out.println(maxSequenceNumber.get(senderName));
 					// the packet is the old one (we've seen this before)
 					if (sequenceNumber <= maxSequenceNumber.get(senderName)
 							.intValue()) {
 						// drop packet
+						System.out.println("ininininininininin");
 						continue;
 					}
+					
+					maxSequenceNumber.put(senderName, new Integer(sequenceNumber));
 
 					// Repeat the chunk (continue the flood)
 					sendQueue.add(receiveChunk);
